@@ -8,10 +8,18 @@ def calculate_error(difference):
     error = 0
     for i in range(difference.shape[0]):
         error += np.dot(difference[i],difference[i])
-    return error/difference.shape[0]
+    print error/difference.shape[0]
+
+def calculate_accuracy(outputs, labels):
+    correct = 0
+    for i in range(outputs.shape[0]):
+        if labels[i][np.argmax(outputs[i])] == 1:
+            correct +=1
+            #print labels[i], outputs[i]
+    print float(correct)/ outputs.shape[0]
 
 class Network:
-    def __init__(self,layer_sizes=[784,20,10],learning_rate=1e-6,from_file=None):
+    def __init__(self,layer_sizes=[784,20,10],learning_rate=1e-8,from_file=None):
         self.learning_rate = learning_rate
         self.layers = []
 
@@ -22,7 +30,6 @@ class Network:
         else:
             for i in range(len(layer_sizes)-1):
                 self.layers.append(l.Layer(num_inputs=layer_sizes[i],num_outputs=layer_sizes[i+1]))
-                print self.layers
 
         self.train_images, self.train_labels = dl.get_training()
 
@@ -31,7 +38,9 @@ class Network:
             outputs = self.forward(self.train_images)
 
             delta_outputs = outputs-self.train_labels
-            print calculate_error(delta_outputs)
+
+            calculate_error(delta_outputs)
+            calculate_accuracy(outputs,self.train_labels)
 
             self.backward(delta_outputs)
 

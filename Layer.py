@@ -13,8 +13,8 @@ class Layer:
             self.W = W
             self.b = np.reshape(b,(-1,len(b)))
         else:
-            self.W = np.random.rand(num_inputs,num_outputs)
-            self.b = np.random.rand(1,num_outputs)
+            self.W = np.random.rand(num_inputs,num_outputs)-0.5
+            self.b = np.random.rand(1,num_outputs)-0.5
 
     def forward(self, X):
         self.X = X
