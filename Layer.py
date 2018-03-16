@@ -8,9 +8,13 @@ def sigmoid_prime(x):
     return sigmoid(x)*(1-sigmoid(x))
 
 class Layer:
-    def __init__(self,num_inputs,num_outputs):
-        self.W = np.random.rand(num_inputs,num_outputs)
-        self.b = np.random.rand(1,num_outputs)
+    def __init__(self,num_inputs=0,num_outputs=0,W=None,b=None):
+        if W is not None and b is not None:
+            self.W = W
+            self.b = np.reshape(b,(-1,len(b)))
+        else:
+            self.W = np.random.rand(num_inputs,num_outputs)
+            self.b = np.random.rand(1,num_outputs)
 
     def forward(self, X):
         self.X = X
