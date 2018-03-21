@@ -22,11 +22,12 @@ class Layer:
         self.output = sigmoid(self.Z)
         return self.output
 
-    def backward(self,delta,learning_rate):
+    def backward(self,delta,learning_rate,l2=1e-4):
 
         partial_derivative_matrix = self.output*(1-self.output)*delta
-        gradient_W = np.matmul(partial_derivative_matrix.T,self.X).T
-        gradient_b = np.matmul(partial_derivative_matrix.T, np.ones((partial_derivative_matrix.shape[0],1))).T
+
+        gradient_W = (float(1)/self.X.shape[0])*np.matmul(partial_derivative_matrix.T,self.X).T + l2*self.W #Include l2
+        gradient_b = (float(1)/self.X.shape[0])*np.matmul(partial_derivative_matrix.T, np.ones((partial_derivative_matrix.shape[0],1))).T
 
         new_delta=np.matmul(partial_derivative_matrix,self.W.T)
 

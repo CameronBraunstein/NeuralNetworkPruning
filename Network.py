@@ -19,7 +19,7 @@ def calculate_accuracy(outputs, labels):
     print float(correct)/ outputs.shape[0]
 
 class Network:
-    def __init__(self,layer_sizes=[784,20,10],learning_rate=1e-8,from_file=None):
+    def __init__(self,layer_sizes=[784,300,100,10],learning_rate=1e-2,from_file=None):
         self.learning_rate = learning_rate
         self.layers = []
 
@@ -33,16 +33,39 @@ class Network:
 
         self.train_images, self.train_labels = dl.get_training()
 
-    def train(self,iterations=50,save_filename=None):
+    def train(self,iterations=10000,save_filename=None):
         for i in range(iterations):
             outputs = self.forward(self.train_images)
 
             delta_outputs = outputs-self.train_labels
 
-            calculate_error(delta_outputs)
-            calculate_accuracy(outputs,self.train_labels)
+            if i %500 ==0:
+                print i
+                calculate_error(delta_outputs)
+                calculate_accuracy(outputs,self.train_labels)
 
             self.backward(delta_outputs)
+
+        if save_filename is not None:
+            fl.store_arrays(save_filename,self.layers)
+
+    def train_stochastic(self,batches=1, iterations=10000,save_filename=None):
+        #Determine size of batches. For default, set batches=1
+        batch_indices = range(0,self.train_images.shape[0]+1,(self.train_images.shape[0])/batches)
+        batch_indices[-1] = self.train_images.shape[0]
+        
+        for i in range(iterations):
+            for j in range(len(batch_indices)-1):
+                outputs = self.forward(self.train_images[batch_indices[j:j+1]])
+                delta_outputs = outputs-self.train_labels[batch_indices[j:j+1]]
+                self.backward(delta_outputs)
+
+            if i %500 ==0:
+                print i
+                calculate_error(delta_outputs)
+                calculate_accuracy(outputs,self.train_labels)
+
+
 
         if save_filename is not None:
             fl.store_arrays(save_filename,self.layers)
@@ -61,6 +84,7 @@ class Network:
 
 
 
-#n = Network()
-n = Network(from_file = 'save.txt')
-n.train(save_filename = 'save.txt')
+n = Network()
+n.train_stochastic()
+#n = Network(from_file = 'save.txt')
+#n.train(save_filename = 'save.txt')
