@@ -2,6 +2,7 @@ import numpy as np
 import math
 
 from time import time
+from Hessian import generate_inverse_hessian
 
 def sigmoid(x):
     return float(1)/(1+math.e**(-x))
@@ -80,11 +81,10 @@ class Layer:
     #     self.gradient_W.fill(0)
     #     self.gradient_b.fill(0)
 
-    def calculate_hessian(self):
-        print 'implement'
 
-    def l_obs(self,):
+    def l_obs(self):
         self.delta_W = 0
+        sub_hessian = generate_inverse_hessian(self.X)
         value = 0
 
         return value

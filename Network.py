@@ -57,7 +57,7 @@ class Network:
         calculate_accuracy_and_error(outputs,test_labels)
 
 
-    def train(self,iterations=1000,save_filename=None):
+    def train(self,iterations=2000,save_filename=None):
         t = time()
         for i in range(iterations):
             outputs = self.forward(self.train_images)
@@ -175,7 +175,7 @@ class Network:
 
 #n = Network()
 
-n = Network(from_file = 'save1.txt',learning_rate=1e-4)
-n.train(save_filename='save.txt')
+n = Network(from_file = 'save.txt',learning_rate=1e-4)
+n.train(save_filename='save1.txt')
 #n.train()
 n.test()
