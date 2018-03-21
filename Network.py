@@ -57,7 +57,7 @@ class Network:
         calculate_accuracy_and_error(outputs,test_labels)
 
 
-    def train(self,iterations=1500,save_filename=None):
+    def train(self,iterations=100,save_filename=None):
         t = time()
         for i in range(iterations):
             outputs = self.forward(self.train_images)
@@ -77,26 +77,26 @@ class Network:
         if save_filename is not None:
             fl.store_arrays(save_filename,self.layers)
 
-    def train_full(self,batches=10, iterations=1,save_filename=None):
-        #Determine size of batches. For default, set batches=1
-        batch_indices = range(0,self.train_images.shape[0]+1,(self.train_images.shape[0])/batches)
-        batch_indices[-1] = self.train_images.shape[0]
-
-        t = time()
-        for i in range(iterations):
-            for j in range(len(batch_indices)-1):
-                outputs = self.forward(self.train_images[batch_indices[j:j+1]])
-                delta = outputs-self.train_labels[batch_indices[j:j+1]]
-                for k in range(1,len(self.layers)):
-                    delta = self.layers[-k].build_gradient(delta)
-
-            if i %1 ==0:
-                print i
-                outputs = self.forward(self.train_images)
-                calculate_accuracy_and_error(outputs,self.train_labels)
-
-            for k in range(len(self.layers)):
-                self.layers[k].update(self.learning_rate)
+    # def train_full(self,batches=10, iterations=1,save_filename=None):
+    #     #Determine size of batches. For default, set batches=1
+    #     batch_indices = range(0,self.train_images.shape[0]+1,(self.train_images.shape[0])/batches)
+    #     batch_indices[-1] = self.train_images.shape[0]
+    #
+    #     t = time()
+    #     for i in range(iterations):
+    #         for j in range(len(batch_indices)-1):
+    #             outputs = self.forward(self.train_images[batch_indices[j:j+1]])
+    #             delta = outputs-self.train_labels[batch_indices[j:j+1]]
+    #             for k in range(1,len(self.layers)):
+    #                 delta = self.layers[-k].build_gradient(delta)
+    #
+    #         if i %1 ==0:
+    #             print i
+    #             outputs = self.forward(self.train_images)
+    #             calculate_accuracy_and_error(outputs,self.train_labels)
+    #
+    #         for k in range(len(self.layers)):
+    #             self.layers[k].update(self.learning_rate)
 
 
                 #calculate_error(delta_outputs)
@@ -107,58 +107,58 @@ class Network:
             fl.store_arrays(save_filename,self.layers)
 
 
-    def train_stochastic(self,batches=10, iterations=1000,save_filename=None):
-        #Determine size of batches. For default, set batches=1
-        batch_indices = range(0,self.train_images.shape[0]+1,(self.train_images.shape[0])/batches)
-        batch_indices[-1] = self.train_images.shape[0]
-
-        t = time()
-        for i in range(iterations):
-            for j in range(len(batch_indices)-1):
-                outputs = self.forward(self.train_images[batch_indices[j:j+1]])
-                delta_outputs = outputs-self.train_labels[batch_indices[j:j+1]]
-                self.backward(delta_outputs)
-
-            if i %50 ==0:
-                print i
-                outputs = self.forward(self.train_images)
-                calculate_accuracy_and_error(outputs,self.train_labels)
-
-                #calculate_error(delta_outputs)
-                #calculate_accuracy(outputs,self.train_labels)
-        print 'time', time()- t
-
-
-
-        if save_filename is not None:
-            fl.store_arrays(save_filename,self.layers)
-
-    def train_stochastic_random(self,batches=10, iterations=1000,save_filename=None):
-        #Determine size of batches. For default, set batches=1
-        batch_indices = range(0,self.train_images.shape[0]+1,(self.train_images.shape[0])/batches)
-        batch_indices[-1] = self.train_images.shape[0]
-
-        t = time()
-        for i in range(iterations):
-            p = np.random.permutation(self.train_images.shape[0])
-            for j in range(len(batch_indices)-1):
-                outputs = self.forward((self.train_images[p])[batch_indices[j:j+1]])
-                delta_outputs = outputs-(self.train_labels[p])[batch_indices[j:j+1]]
-                self.backward(delta_outputs)
-
-            if i %50 ==0:
-                print i
-                outputs = self.forward(self.train_images)
-                calculate_accuracy_and_error(outputs,self.train_labels)
-
-                #calculate_error(delta_outputs)
-                #calculate_accuracy(outputs,self.train_labels)
-        print 'time', time()- t
-
-
-
-        if save_filename is not None:
-            fl.store_arrays(save_filename,self.layers)
+    # def train_stochastic(self,batches=10, iterations=1000,save_filename=None):
+    #     #Determine size of batches. For default, set batches=1
+    #     batch_indices = range(0,self.train_images.shape[0]+1,(self.train_images.shape[0])/batches)
+    #     batch_indices[-1] = self.train_images.shape[0]
+    #
+    #     t = time()
+    #     for i in range(iterations):
+    #         for j in range(len(batch_indices)-1):
+    #             outputs = self.forward(self.train_images[batch_indices[j:j+1]])
+    #             delta_outputs = outputs-self.train_labels[batch_indices[j:j+1]]
+    #             self.backward(delta_outputs)
+    #
+    #         if i %50 ==0:
+    #             print i
+    #             outputs = self.forward(self.train_images)
+    #             calculate_accuracy_and_error(outputs,self.train_labels)
+    #
+    #             #calculate_error(delta_outputs)
+    #             #calculate_accuracy(outputs,self.train_labels)
+    #     print 'time', time()- t
+    #
+    #
+    #
+    #     if save_filename is not None:
+    #         fl.store_arrays(save_filename,self.layers)
+    #
+    # def train_stochastic_random(self,batches=10, iterations=1000,save_filename=None):
+    #     #Determine size of batches. For default, set batches=1
+    #     batch_indices = range(0,self.train_images.shape[0]+1,(self.train_images.shape[0])/batches)
+    #     batch_indices[-1] = self.train_images.shape[0]
+    #
+    #     t = time()
+    #     for i in range(iterations):
+    #         p = np.random.permutation(self.train_images.shape[0])
+    #         for j in range(len(batch_indices)-1):
+    #             outputs = self.forward((self.train_images[p])[batch_indices[j:j+1]])
+    #             delta_outputs = outputs-(self.train_labels[p])[batch_indices[j:j+1]]
+    #             self.backward(delta_outputs)
+    #
+    #         if i %50 ==0:
+    #             print i
+    #             outputs = self.forward(self.train_images)
+    #             calculate_accuracy_and_error(outputs,self.train_labels)
+    #
+    #             #calculate_error(delta_outputs)
+    #             #calculate_accuracy(outputs,self.train_labels)
+    #     print 'time', time()- t
+    #
+    #
+    #
+    #     if save_filename is not None:
+    #         fl.store_arrays(save_filename,self.layers)
 
 
     def forward(self,inputs):
@@ -170,12 +170,12 @@ class Network:
     def backward(self,delta_outputs):
         delta = delta_outputs
         for i in range(1,len(self.layers)):
-            delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=100000)
+            delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=150000)
 
 
 #n = Network()
 
-n = Network(from_file = 'save1.txt',learning_rate=1e-4)
-n.train(save_filename='save.txt')
+n = Network(from_file = 'save.txt',learning_rate=1e-4)
+n.train(save_filename='save1.txt')
 #n.train()
 n.test()
