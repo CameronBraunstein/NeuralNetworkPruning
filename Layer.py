@@ -85,6 +85,7 @@ class Layer:
     def l_obs(self):
         self.delta_W = 0
         sub_hessian = generate_inverse_hessian(self.X)
+        #
         value = 0
 
         return value

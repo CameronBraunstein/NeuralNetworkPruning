@@ -57,7 +57,7 @@ class Network:
         calculate_accuracy_and_error(outputs,test_labels)
 
 
-    def train(self,iterations=2000,save_filename=None):
+    def train(self,iterations=12000,save_filename=None):
         t = time()
         for i in range(iterations):
             outputs = self.forward(self.train_images)
@@ -170,12 +170,12 @@ class Network:
     def backward(self,delta_outputs):
         delta = delta_outputs
         for i in range(1,len(self.layers)):
-            delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=170000)
+            delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=220000)
 
 
 #n = Network()
 
-n = Network(from_file = 'save.txt',learning_rate=1e-4)
-n.train(save_filename='save1.txt')
+n = Network(from_file = 'save1.txt',learning_rate=1e-4)
+n.train(save_filename='save.txt')
 #n.train()
 n.test()
