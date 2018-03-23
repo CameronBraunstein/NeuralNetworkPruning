@@ -41,7 +41,7 @@ class Layer:
         new_delta=new_delta_scalar*np.matmul(partial_derivative_matrix,self.W.T)
 
         #UPDATE WEIGHTS
-        self.W -= learning_rate*gradient_W
+        self.W -= learning_rate*self.unpruned_W*gradient_W
         self.b -= learning_rate*gradient_b
 
 
@@ -53,9 +53,6 @@ class Layer:
     def calculate_loss(self):
         loss= float("inf")
         self.i_j = [-1,-1]
-
-        print self.sub_inverse_hessian.shape
-
         for i in range(self.sub_inverse_hessian.shape[0]):
             for j in range(self.W.shape[1]):
                 if self.unpruned_W[i][j]==1:
@@ -69,16 +66,13 @@ class Layer:
             return loss
 
         self.delta_W.fill(0.0)
-
-        # print self.delta_W[:,self.i_j[1]].shape, self.sub_inverse_hessian[:,self.i_j[0]].shape
-        # print self.i_j
-
-
         self.delta_W[:,self.i_j[1]] = (-float(self.W[self.i_j[0]][self.i_j[1]]) /self.sub_inverse_hessian[self.i_j[0]][self.i_j[0]])*self.sub_inverse_hessian[:,self.i_j[0]]
 
         return loss
 
     def prune(self):
-        self.W += self.unpruned_W*self.delta_W
         print self.i_j, self.W[self.i_j[0]][self.i_j[1]]
+        self.W += self.unpruned_W*self.delta_W
+        #Ensure that i,j is changed to zero (Sometimes a rounding error will effect this)
+        self.W[self.i_j[0]][self.i_j[1]] = 0
         self.unpruned_W[self.i_j[0]][self.i_j[1]] = 0

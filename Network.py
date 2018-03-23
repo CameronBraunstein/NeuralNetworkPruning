@@ -31,7 +31,6 @@ def calculate_accuracy_and_error(outputs,labels):
     for i in range(outputs.shape[0]):
         if labels[i][np.argmax(outputs[i])] == 1:
             correct +=1
-            #print labels[i], outputs[i]
     print 'Accuracy:', float(correct)/ outputs.shape[0]
 
 
@@ -91,39 +90,53 @@ class Network:
         for i in range(1,len(self.layers)):
             delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=220000)
 
-    def l_obs_prune(self, save_file=None):
+    def l_obs_prune(self, save_filename=None,max_time=50,recalculate_hessian=500):
 
         self.forward(self.train_images)
         self.test()
         last_pruned_layer=0
-        losses=[float("inf")]*len(self.layers)
+
 
         #Initially calculate inverse_hessian
         for layer in self.layers:
             layer.calculate_sub_inverse_hessian()
 
-        while True:
-            for i in range(1, len(self.layers)-last_pruned_layer+1):
-                losses[-i] = self.layers[-i].calculate_loss()
-            # try:
-            min_loss = min(losses)
+        losses=[float("inf")]*len(self.layers)
+        for i in range(1,len(self.layers)):
+            losses[i] = self.layers[i].calculate_loss()
 
+        t = time()
+        iterations = 0
+        while True and time()-t< max_time:
+
+            #Calculate losses
+            losses[last_pruned_layer] = self.layers[last_pruned_layer].calculate_loss()
+
+            #Find smallest loss
+            min_loss = min(losses)
             if min_loss == float("inf"):
                 print 'no more prunable weights'
                 return
-
-            #Now compare
             index = losses.index(min_loss)
-            print index
+            print 'Layer to Prune:', index
             self.layers[index].prune()
             last_pruned_layer=index
 
-            #self.forward(self.train_images)
+            self.test()
+            iterations += 1
 
-            self.test() #Must forward
+            #When the algorithm has run for long enough, recalculate the hessians
+            if iterations % recalculate_hessian == 0:
+                self.forward(self.train_images)
+                for i in range(1, len(self.layers)):
+                    self.layers[i].calculate_sub_inverse_hessian()
 
-        def calculate_loss_for_layer(self,i):
-            return self.layers[i].calculate_loss()
+                for i in range(len(self.layers)):
+                    losses[i] = self.layers[i].calculate_loss()
+
+
+        if save_filename is not None:
+            fl.store_arrays(save_filename,self.layers)
 
 
 
@@ -133,6 +146,6 @@ class Network:
 
 n = Network(from_file = 'save.txt',learning_rate=1e-4,epsilons=[1e-0,1e-0,1e-0])
 #n.train(save_filename='save.txt')
-n.l_obs_prune()
+n.l_obs_prune(save_filename='l_obs.txt')
 #n.train()
 n.test()
