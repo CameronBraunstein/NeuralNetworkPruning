@@ -11,8 +11,8 @@ def generate_inverse_hessian(X,alpha=1e-6):
         X_row = X[i].reshape((1,X.shape[1]))
 
 
-        print H_i_inverse.shape
-        print X_row.T.shape
+        print (H_i_inverse.shape)
+        print (X_row.T.shape)
 
 
 
@@ -42,7 +42,7 @@ def gen_inverse(X, process_number=4,alpha=1e-6):
     for result in results:
         H +=result
 
-    print 'Done adding', time() -t
+    print ('Done adding', time() -t)
     return np.linalg.inv(H)
 
 

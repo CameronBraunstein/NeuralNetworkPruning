@@ -3,6 +3,7 @@ import numpy as np
 import DataLoader as dl
 import FileLoader as fl
 import Layer as l
+import n2ps_algo as n2ps
 
 from time import time
 
@@ -10,7 +11,7 @@ def calculate_error(difference):
     error = 0
     for i in range(difference.shape[0]):
         error += np.dot(difference[i],difference[i])
-    print error/difference.shape[0]
+    print (error/difference.shape[0])
 
 def calculate_accuracy(outputs, labels):
     correct = 0
@@ -18,20 +19,20 @@ def calculate_accuracy(outputs, labels):
         if labels[i][np.argmax(outputs[i])] == 1:
             correct +=1
             #print labels[i], outputs[i]
-    print float(correct)/ outputs.shape[0]
+    print (correct/ outputs.shape[0])
 
 def calculate_accuracy_and_error(outputs,labels):
     difference = outputs-labels
     error = 0
     for i in range(difference.shape[0]):
         error += np.dot(difference[i],difference[i])
-    print 'Error:', error/difference.shape[0]
+    print ('Error:', error/difference.shape[0])
 
     correct = 0
     for i in range(outputs.shape[0]):
         if labels[i][np.argmax(outputs[i])] == 1:
             correct +=1
-    print 'Accuracy:', float(correct)/ outputs.shape[0]
+    print ('Accuracy:', float(correct)/ outputs.shape[0])
 
 
 class Network:
@@ -43,7 +44,7 @@ class Network:
 
         if from_file!=None:
             arrays = fl.return_arrays(from_file)
-            for i in range(len(arrays)/2):
+            for i in range(int(len(arrays)/2)):
                 self.layers.append(l.Layer(W = arrays[2*i], b=arrays[2*i+1],l_obs_threshold=epsilons[i]))
         else:
             for i in range(len(layer_sizes)-1):
@@ -65,14 +66,14 @@ class Network:
             delta_outputs = outputs-self.train_labels
 
             if i %1 ==0:
-                print i
+                print(i)
                 calculate_error(delta_outputs)
                 calculate_accuracy(outputs,self.train_labels)
 
 
             self.backward(delta_outputs)
 
-        print 'time', time()- t
+        print ('time', time()- t)
 
         if save_filename is not None:
             fl.store_arrays(save_filename,self.layers)
@@ -115,10 +116,10 @@ class Network:
             #Find smallest loss
             min_loss = min(losses)
             if min_loss == float("inf"):
-                print 'no more prunable weights'
+                print ('no more prunable weights')
                 return
             index = losses.index(min_loss)
-            print 'Layer to Prune:', index
+            print ('Layer to Prune:', index)
             self.layers[index].prune()
             last_pruned_layer=index
 
@@ -138,7 +139,60 @@ class Network:
         if save_filename is not None:
             fl.store_arrays(save_filename,self.layers)
 
+    def N2PS_prune_input_neurons(self):
+        X = self.train_images
+        W = self.layers[0].W
+        num_inp_neurons = X.shape[1]
+        txip = X.sum(axis=0)
+        ftxip = l.sigmoid(abs(txip))
+        si = np.zeros(num_inp_neurons)
+        alpha = 0
+        for i in range(num_inp_neurons):
+            for j in range(W.shape[1]):
+                si[i] += abs(ftxip[i] + W[i][j])
+            alpha += si[i]    
+        alpha = alpha/num_inp_neurons
+        for i in range(X.shape[1]):
+            if si[i] <= alpha:
+                for j in range(W.shape[1]):
+                    W[i][j] = 0
+        self.layers[0].W =  W
 
+    def N2PS_prune_hidden_neurons(self,ftnet,layer=0):
+        
+        inp_Wt = self.layers[layer].W
+        out_Wt = self.layers[layer+1].W
+        num_hid_neurons = inp_Wt.shape[1]
+        tnetjl = np.zeros(num_hid_neurons)
+    
+        if layer == 0: 
+            X_inp = self.train_images
+            temp_tnet = np.matmul(X_inp,inp_Wt)
+            tnetjl = temp_tnet.sum(axis=0)
+        else:
+            X_inp = ftnet
+            for i in range(X_inp.shape[0]):
+                tnetjl += X_inp[i]* inp_Wt[i]       
+      
+        si = np.zeros(num_hid_neurons)
+        ftnet = np.zeros(num_hid_neurons)
+    
+        for s in range(num_hid_neurons):
+            ftnetjl = l.sigmoid(abs(tnetjl[s]))
+            for m in range(out_Wt.shape[1]):
+                si[s] += abs(ftnetjl + out_Wt[s][m])
+            ftnet[s] = ftnetjl
+    
+        beta = si.sum(axis=0)
+        beta = beta/num_hid_neurons    
+        for i in range(num_hid_neurons):
+            if si[i] <= beta:
+                for k in range(inp_Wt.shape[0]):
+                    inp_Wt[k][i] = 0
+                for j in range(out_Wt.shape[1]):
+                    out_Wt[i][j] = 0
+        self.layers[layer+1].W = out_Wt 
+        return ftnet
 
 
 
@@ -146,6 +200,11 @@ class Network:
 
 n = Network(from_file = 'save.txt',learning_rate=1e-4,epsilons=[1e-0,1e-0,1e-0])
 #n.train(save_filename='save.txt')
-n.l_obs_prune(save_filename='l_obs.txt')
-#n.train()
+#n.l_obs_prune(save_filename='l_obs.txt')
+n.test()
+n.N2PS_prune_input_neurons() #Pruning of input layer
+ftnet = 0
+for layer in range(len(n.layers)-1):
+    ftnet = n.N2PS_prune_hidden_neurons(ftnet,layer=layer) #Pruning of hidden layer
+n.train()
 n.test()

@@ -71,7 +71,7 @@ class Layer:
         return loss
 
     def prune(self):
-        print self.i_j, self.W[self.i_j[0]][self.i_j[1]]
+        print (self.i_j, self.W[self.i_j[0]][self.i_j[1]])
         self.W += self.unpruned_W*self.delta_W
         #Ensure that i,j is changed to zero (Sometimes a rounding error will effect this)
         self.W[self.i_j[0]][self.i_j[1]] = 0
