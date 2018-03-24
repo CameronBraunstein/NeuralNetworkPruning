@@ -1,7 +1,6 @@
 from mnist import MNIST
 import numpy as np
 
-
 class DataLoader:
     def __init__(self):
         self.mndata = MNIST('samples', return_type='numpy')
