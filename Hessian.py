@@ -37,12 +37,12 @@ def gen_inverse(X, process_number=4,alpha=1e-6):
     X_array = np.split(X,process_number)
     #Calculate hessian using all 4 processors
     results = pool.map(gen_hessian,X_array)
+    pool.close()
 
     H = (float(1)/alpha)*np.eye(X.shape[1],X.shape[1])
     for result in results:
         H +=result
 
-    print 'Done adding', time() -t
     return np.linalg.inv(H)
 
 
