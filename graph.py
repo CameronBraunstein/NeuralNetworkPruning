@@ -36,7 +36,9 @@ def compare(file1,file2):
     data1=np.loadtxt(file1)
     data2=np.loadtxt(file2)
     x = np.arange(0,1,float(1)/data1.shape[0])[::-1]
-    plt.plot(x,data1[:,1],'r--',x,data2[:,1],'b--',)
+    plt.plot(x,data1[:,1],'r--',label='Magnatude Based Pruning')
+    plt.plot(x,data2[:,1],'b--',label='L-OBS Pruning')
+    plt.legend(framealpha=1, frameon=True, loc='lower left')
     plt.xlim(1, 0)
     plt.xlabel('Compression Ratio')
     plt.title('Comparing Compressions')
@@ -45,5 +47,5 @@ def compare(file1,file2):
 
 if __name__ == '__main__':
     #weight_histogram('l_obs')
-    compare('report_control.txt','report_simple_l_obs.txt')
+    compare('report_control.txt','report_continuous_l_obs.txt')
     #view_report('report_simple_l_obs.txt')

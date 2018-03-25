@@ -42,6 +42,12 @@ class Network:
         self.train_images, self.train_labels = self.dl.get_training()
         self.test_images,self.test_labels = self.dl.get_testing()
 
+    def calculate_weights(self):
+        weights=0
+        for layer in self.layers:
+            weights +=layer.W.shape[0]*layer.W.shape[1]
+        return weights
+
     def save_network(self,save_filename):
         fl.store_layers(save_filename,self.layers)
 
@@ -70,8 +76,7 @@ class Network:
             #delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=220000)
             delta = self.layers[-i].backward(delta,self.learning_rate)
 
-    def train(self,iterations=20,batches=60000,save_filename=None):
-        t = time()
+    def train(self,iterations=15,batches=60000,save_filename=None):
         indices = range(0,self.train_images.shape[0]+1,self.train_images.shape[0]//batches)
 
         for i in range(iterations):
@@ -84,78 +89,15 @@ class Network:
 
                 self.backward(delta_outputs)
             print (self.test_testing())
-        print ('time', time()- t)
 
-    # def l_obs_prune(self, save_filename=None,max_time=10,recalculate_hessian=200,measure=500):
-    #     self.forward(self.train_images)
-    #     self.test()
-    #     last_pruned_layer=0
-    #
-    #
-    #     #Initially calculate inverse_hessian
-    #     for layer in self.layers:
-    #         layer.calculate_sub_inverse_hessian()
-    #
-    #     losses = [layer.calculate_loss() for layer in self.layers]
-    #
-    #     t = time()
-    #     iterations = 0
-    #
-    #     weights = self.calculate_weights()
-    #
-    #     errors_and_accuracies = -np.ones((weights/measure,2))
-    #     #while True and time()-t< max_time:
-    #     while True:
-    #
-    #         #Calculate losses
-    #         losses[last_pruned_layer] = self.layers[last_pruned_layer].calculate_loss()
-    #
-    #         #Find smallest loss
-    #         min_loss = min(losses)
-    #         if min_loss == float("inf"):
-    #             print ('no more prunable weights', iterations, time()-t)
-    #
-    #             return
-    #
-    #         last_pruned_layer = losses.index(min_loss)
-    #         self.layers[last_pruned_layer].prune()
-    #
-    #         if iterations % measure ==0:
-    #             results = self.test()
-    #             errors_and_accuracies[iterations/measure,:] = results
-    #             print (results, iterations)
-    #
-    #         iterations += 1
-    #
-    #         #When the algorithm has run for long enough, recalculate the hessians
-    #         if iterations % recalculate_hessian == 0:
-    #             self.forward(self.train_images)
-    #             for i in range(1, len(self.layers)):
-    #                 self.layers[i].calculate_sub_inverse_hessian()
-    #
-    #             for i in range(len(self.layers)):
-    #                 losses[i] = self.layers[i].calculate_loss()
-    #
-    #
-    #     print (time() - t)
-    #
-    #
-    #     if save_filename is not None:
-    #         fl.store_arrays(save_filename,self.layers)
-    #
-    #     print (errors_and_accuracies)
-    #     np.savetxt('report.txt',errors_and_accuracies)
 
-    def l_obs_prune(self, save_filename=None,report_file='report_simple_l_obs.txt',measure=500):
+    def l_obs_prune_simple(self,report_file='report_simple_l_obs.txt',measure=500,save_filename=None):
         weights = self.calculate_weights()
         errors_and_accuracies = -np.ones((weights//measure+1,2))
-
-        self.forward(self.train_images)
         iterations = 0
 
         #Initially calculate inverse_hessian
         for layer in self.layers:
-            t = time()
             self.forward(self.train_images)
             layer.calculate_sub_inverse_hessian()
             loss = layer.calculate_loss()
@@ -166,15 +108,39 @@ class Network:
                 layer.prune()
                 loss = layer.calculate_loss()
                 iterations +=1
-            print ('finished layer')
+
         np.savetxt(report_file,errors_and_accuracies)
 
-
-    def calculate_weights(self):
-        weights=0
+    def l_obs_prune_continuous(self,report_file='report_continuous_l_obs.txt',measure=500,recalculate_hessian=2000,layer_bias=10,retrain=False):
+        weights = self.calculate_weights()
+        errors_and_accuracies = -np.ones((weights//measure+1,2))
+        self.forward(self.train_images)
         for layer in self.layers:
-            weights +=layer.W.shape[0]*layer.W.shape[1]
-        return weights
+            layer.calculate_sub_inverse_hessian()
+        losses = [layer.calculate_loss() for layer in self.layers]
+        for i in range(len(losses)):
+            losses[i] *= layer_bias**i
+        last_pruned_layer = np.argmin(losses)
+
+        for iterations in range(weights):
+            self.layers[last_pruned_layer].prune()
+            losses[last_pruned_layer] = (layer_bias**last_pruned_layer)*self.layers[last_pruned_layer].calculate_loss()
+            last_pruned_layer = np.argmin(losses)
+
+            if iterations % measure ==0:
+                errors_and_accuracies[iterations//measure,:] = self.test_testing()
+                print (errors_and_accuracies[iterations//measure,:], iterations)
+
+            #Recalculate Hessians Periodically
+            if iterations % recalculate_hessian ==0 and iterations!=0:
+                if retrain:
+                    self.train()
+                self.forward(self.train_images)
+                for i in range(1,len(self.layers)):
+                    self.layers[i].calculate_sub_inverse_hessian()
+                    losses[i]=(layer_bias**last_pruned_layer)*self.layers[i].calculate_loss()
+                last_pruned_layer = np.argmin(losses)
+        np.savetxt(report_file,errors_and_accuracies)
 
     def remove_by_magnatude(self,measure=500,report_file='report_control.txt'):
         weights = self.calculate_weights()
@@ -204,6 +170,6 @@ class Network:
 
 if __name__ =='__main__':
     n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
-    n.l_obs_prune()
+    n.l_obs_prune_continuous(report_file='report_l_obs_continuous_retrain.txt')
 
     #n.save_network(save_filename='l_obs')

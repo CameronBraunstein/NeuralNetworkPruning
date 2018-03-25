@@ -72,8 +72,10 @@ class Layer:
 
 
     def calculate_loss(self):
-        self.i_j = next(self.loss_indices)
-        print (self.i_j)
+        try:
+            self.i_j = next(self.loss_indices)
+        except StopIteration:
+            return float("inf")
         i,j = self.i_j[0],self.i_j[1]
         self.delta_W = (-float(self.W[i][j]) / self.sub_inverse_hessian[i][i])*self.sub_inverse_hessian[:,i]
         return self.loss_matrix[i,j]
