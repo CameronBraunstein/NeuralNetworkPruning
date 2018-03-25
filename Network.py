@@ -6,33 +6,17 @@ import Layer as l
 
 from time import time
 
-# def calculate_error(difference):
-#     error = 0
-#     for i in range(difference.shape[0]):
-#         error += np.dot(difference[i],difference[i])
-#     #print error/difference.shape[0]
-#
-# def calculate_accuracy(outputs, labels):
-#     correct = 0
-#     for i in range(outputs.shape[0]):
-#         if labels[i][np.argmax(outputs[i])] == 1:
-#             correct +=1
-#     #print float(correct)/ outputs.shape[0]
-
 def calculate_accuracy_and_error(outputs,labels):
     difference = outputs-labels
     error = 0
     for i in range(difference.shape[0]):
         error += np.dot(difference[i],difference[i])
     error = error/difference.shape[0]
-    #print 'Error:', error
-
     correct = 0
     for i in range(outputs.shape[0]):
         if labels[i][np.argmax(outputs[i])] == 1:
             correct +=1
     accuracy = float(correct)/ outputs.shape[0]
-    #print 'Accuracy:', accuracy
     return error, accuracy
 
 
@@ -42,11 +26,19 @@ class Network:
         self.epsilons = epsilons
         self.layers = []
         self.dl = dl.DataLoader()
-
         if from_file!=None:
-            arrays = fl.return_arrays(from_file)
-            for i in range(len(arrays)//2):
-                self.layers.append(l.Layer(W = arrays[2*i], b=arrays[2*i+1],l_obs_threshold=epsilons[i],retain_mask=retain_mask))
+            counter=0
+            while True:
+                W,b = fl.retrieve_layer(from_file,counter)
+                if W is not None:
+                    self.layers.append(l.Layer(W = W, b=b,l_obs_threshold=epsilons[counter],retain_mask=retain_mask))
+                else:
+                    break
+                counter +=1
+            # fl.retrieve_layer(from_file,4)
+            # #arrays = fl.return_arrays(from_file)
+            # for i in range(len(arrays)//2):
+            #     self.layers.append(l.Layer(W = arrays[2*i], b=arrays[2*i+1],l_obs_threshold=epsilons[i],retain_mask=retain_mask))
         else:
             for i in range(len(layer_sizes)-1):
                 self.layers.append(l.Layer(num_inputs=layer_sizes[i],num_outputs=layer_sizes[i+1],l_obs_threshold=epsilons[i]))
@@ -55,12 +47,10 @@ class Network:
         self.test_images,self.test_labels = self.dl.get_testing()
 
     def test_training(self):
-        #test_images,test_labels = self.dl.get_testing()
         outputs = self.forward(self.train_images)
         return calculate_accuracy_and_error(outputs,self.train_labels)
 
     def test_testing(self):
-        #test_images,test_labels = self.dl.get_testing()
         outputs = self.forward(self.test_images)
         return calculate_accuracy_and_error(outputs,self.test_labels)
 
@@ -69,23 +59,15 @@ class Network:
         t = time()
         for i in range(iterations):
             outputs = self.forward(self.train_images)
-
             delta_outputs = outputs-self.train_labels
-
             if i %1 ==0:
                 print (i)
                 calculate_error(delta_outputs)
                 calculate_accuracy(outputs,self.train_labels)
-
-
             self.backward(delta_outputs)
-
         print ('time', time()- t)
-
         if save_filename is not None:
             fl.store_arrays(save_filename,self.layers)
-
-
 
     def forward(self,inputs):
         neuron_layer = inputs
@@ -224,9 +206,9 @@ class Network:
 
 
 if __name__ =='__main__':
-    n = Network(from_file = 'save.txt',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True)
+    #n = Network(from_file = 'save.txt',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True)
+    n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5
     #n = Network(learning_rate=3e-5,epsilons=[3.16e+2,3.16e+2,2.2e+2]) #1e-5 is good for fine tuning, 5e-5 good for approx
-    #n.train(save_filename='save.txt')
-    n.l_obs_prune_1(save_filename='l_obs.txt')
+    #fl.store_layers('l_obs',n.layers)
     #n.train()
-    #n.test()
+    print (n.test_testing())
