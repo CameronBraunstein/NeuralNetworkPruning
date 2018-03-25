@@ -90,15 +90,6 @@ class Layer:
         self.W[i][j] = 0
         self.unpruned_W[i][j] = 0
 
-    # def find_smallest_weight(self):
-    #     try:
-    #         result = min(filter(lambda x: x > 0, abs(self.W).flat))
-    #     except ValueError:
-    #         return float('inf')
-    #     indices= (np.nonzero(result == abs(self.W)))
-    #     self.i_j = [indices[0][0],indices[1][0]]
-    #     return result
-
     def rank_weights(self):
         argsort = np.argsort(abs(self.W).flat)
         self.indices = [[i//self.W.shape[1],i%self.W.shape[1]] for i in argsort]
@@ -115,7 +106,3 @@ class Layer:
             return float("inf")
         i,j = self.indices[self.counter][0],self.indices[self.counter][1]
         return abs(self.W[i,j])
-    # def prune_and_return_next_smallest_weight(self):
-    #     self.W[self.i_j[0],self.i_j[1]] = 0
-    #     self.unpruned_W[self.i_j[0],self.i_j[1]] = 0
-    #     return self.find_smallest_weight()

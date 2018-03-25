@@ -76,7 +76,7 @@ class Network:
             #delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=220000)
             delta = self.layers[-i].backward(delta,self.learning_rate)
 
-    def train(self,iterations=15,batches=60000,save_filename=None):
+    def train(self,iterations=3,batches=60000,save_filename=None):
         indices = range(0,self.train_images.shape[0]+1,self.train_images.shape[0]//batches)
 
         for i in range(iterations):
@@ -142,7 +142,7 @@ class Network:
                 last_pruned_layer = np.argmin(losses)
         np.savetxt(report_file,errors_and_accuracies)
 
-    def remove_by_magnatude(self,measure=500,report_file='report_control.txt'):
+    def remove_by_magnitude(self,measure=500,report_file='report_control.txt'):
         weights = self.calculate_weights()
         errors_and_accuracies = -np.ones((weights//measure+1,2))
         print(weights, len(errors_and_accuracies))
@@ -170,6 +170,6 @@ class Network:
 
 if __name__ =='__main__':
     n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
-    n.l_obs_prune_continuous(report_file='report_l_obs_continuous_retrain.txt')
+    n.l_obs_prune_continuous(report_file='report_l_obs_continuous_retrain.txt',retrain=True)
 
     #n.save_network(save_filename='l_obs')
