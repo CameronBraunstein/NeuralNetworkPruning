@@ -46,6 +46,9 @@ class Network:
         self.train_images, self.train_labels = self.dl.get_training()
         self.test_images,self.test_labels = self.dl.get_testing()
 
+    def save_network(self,save_filename):
+        fl.store_layers(save_filename,self.layers)
+
     def test_training(self):
         outputs = self.forward(self.train_images)
         return calculate_accuracy_and_error(outputs,self.train_labels)
@@ -55,19 +58,23 @@ class Network:
         return calculate_accuracy_and_error(outputs,self.test_labels)
 
 
-    def train(self,iterations=10,save_filename=None):
-        t = time()
-        for i in range(iterations):
-            outputs = self.forward(self.train_images)
-            delta_outputs = outputs-self.train_labels
-            if i %1 ==0:
-                print (i)
-                calculate_error(delta_outputs)
-                calculate_accuracy(outputs,self.train_labels)
-            self.backward(delta_outputs)
-        print ('time', time()- t)
-        if save_filename is not None:
-            fl.store_arrays(save_filename,self.layers)
+    # def train(self,iterations=10,save_filename=None):
+    #     t = time()
+    #     for i in range(iterations):
+    #         outputs = self.forward(self.train_images)
+    #         delta_outputs = outputs-self.train_labels
+    #         if i %1 ==0:
+    #             print (i)
+    #             calculate_error(delta_outputs)
+    #             calculate_accuracy(outputs,self.train_labels)
+    #         self.backward(delta_outputs)
+    #     print ('time', time()- t)
+    #     if save_filename is not None:
+    #         fl.store_arrays(save_filename,self.layers)
+    def shuffle_samples(self):
+        permutation = np.random.permutation(self.train_images.shape[0])
+        self.train_images = self.train_images[permutation]
+        self.train_labels = self.train_labels[permutation]
 
     def forward(self,inputs):
         neuron_layer = inputs
@@ -80,6 +87,22 @@ class Network:
         for i in range(1,len(self.layers)):
             #delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=220000)
             delta = self.layers[-i].backward(delta,self.learning_rate)
+
+    def train(self,iterations=20,batches=60000,save_filename=None):
+        t = time()
+        indices = range(0,self.train_images.shape[0]+1,self.train_images.shape[0]//batches)
+
+        for i in range(iterations):
+            if i % 20 == 0:
+                self.shuffle_samples()
+
+            for j in range(len(indices)-1):
+                outputs = self.forward(self.train_images[j:j+1])
+                delta_outputs = outputs-self.train_labels[j:j+1]
+
+                self.backward(delta_outputs)
+            print (self.test_testing())
+        print ('time', time()- t)
 
     def l_obs_prune(self, save_filename=None,max_time=10,recalculate_hessian=200,measure=500):
         self.forward(self.train_images)
@@ -173,32 +196,9 @@ class Network:
             weights +=layer.W.shape[0]*layer.W.shape[1]
         return weights
 
-    def retrain(self,iterations=20,batches=60000,save_filename=None):
-        t = time()
-        indices = range(0,self.train_images.shape[0]+1,self.train_images.shape[0]//batches)
-
-        for i in range(iterations):
-            if i % 20 == 0:
-                self.shuffle_samples()
-
-            for j in range(len(indices)-1):
-
-
-                outputs = self.forward(self.train_images[j:j+1])
-
-                delta_outputs = outputs-self.train_labels[j:j+1]
-
-                self.backward(delta_outputs)
-            print (self.test_testing())
 
 
 
-        print ('time', time()- t)
-
-    def shuffle_samples(self):
-        permutation = np.random.permutation(self.train_images.shape[0])
-        self.train_images = self.train_images[permutation]
-        self.train_labels = self.train_labels[permutation]
 
 
 
@@ -211,4 +211,4 @@ if __name__ =='__main__':
     #n = Network(learning_rate=3e-5,epsilons=[3.16e+2,3.16e+2,2.2e+2]) #1e-5 is good for fine tuning, 5e-5 good for approx
     #fl.store_layers('l_obs',n.layers)
     #n.train()
-    print (n.test_testing())
+    n.save_network(save_filename='l_obs')

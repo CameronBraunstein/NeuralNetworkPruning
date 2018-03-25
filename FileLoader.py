@@ -1,4 +1,6 @@
 import numpy as np
+import os
+
 # def tokenizer(filename):
 #     with open(filename) as f:
 #         chunk = []
@@ -27,17 +29,18 @@ import numpy as np
 #     f.close()
 
 def store_layers(save_filename,layers):
+    if not os.path.exists(save_filename):
+        os.makedirs(save_filename)
     counter = 0
     for layer in layers:
-        print ('{}/layers/W{}.txt'.format(save_filename,counter))
-        np.savetxt('{}/layers/W{}.txt'.format(save_filename,counter),layer.W)
-        np.savetxt('{}/layers/b{}.txt'.format(save_filename,counter),layer.b)
+        np.savetxt('{}/W{}.txt'.format(save_filename,counter),layer.W)
+        np.savetxt('{}/b{}.txt'.format(save_filename,counter),layer.b)
         counter +=1
 
 def retrieve_layer(save_filename,layer_number):
     try:
-        W = np.loadtxt('{}/layers/W{}.txt'.format(save_filename,layer_number))
-        b = np.loadtxt('{}/layers/b{}.txt'.format(save_filename,layer_number))
+        W = np.loadtxt('{}/W{}.txt'.format(save_filename,layer_number))
+        b = np.loadtxt('{}/b{}.txt'.format(save_filename,layer_number))
     except FileNotFoundError:
         return None, None
     return W,b
