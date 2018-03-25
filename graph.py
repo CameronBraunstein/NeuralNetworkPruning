@@ -32,6 +32,18 @@ def view_report(from_file):
     plt.ylabel('Accuracy')
     plt.show()
 
+def compare(file1,file2):
+    data1=np.loadtxt(file1)
+    data2=np.loadtxt(file2)
+    x = np.arange(0,1,float(1)/data1.shape[0])[::-1]
+    plt.plot(x,data1[:,1],'r--',x,data2[:,1],'b--',)
+    plt.xlim(1, 0)
+    plt.xlabel('Compression Ratio')
+    plt.title('Comparing Compressions')
+    plt.ylabel('Accuracy')
+    plt.show()
+
 if __name__ == '__main__':
     #weight_histogram('l_obs')
-    view_report('report_control.txt')
+    compare('report_control.txt','report_simple_l_obs.txt')
+    #view_report('report_simple_l_obs.txt')

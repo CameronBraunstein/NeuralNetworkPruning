@@ -53,20 +53,6 @@ class Network:
         outputs = self.forward(self.test_images)
         return calculate_accuracy_and_error(outputs,self.test_labels)
 
-
-    # def train(self,iterations=10,save_filename=None):
-    #     t = time()
-    #     for i in range(iterations):
-    #         outputs = self.forward(self.train_images)
-    #         delta_outputs = outputs-self.train_labels
-    #         if i %1 ==0:
-    #             print (i)
-    #             calculate_error(delta_outputs)
-    #             calculate_accuracy(outputs,self.train_labels)
-    #         self.backward(delta_outputs)
-    #     print ('time', time()- t)
-    #     if save_filename is not None:
-    #         fl.store_arrays(save_filename,self.layers)
     def shuffle_samples(self):
         permutation = np.random.permutation(self.train_images.shape[0])
         self.train_images = self.train_images[permutation]
@@ -160,11 +146,12 @@ class Network:
     #     print (errors_and_accuracies)
     #     np.savetxt('report.txt',errors_and_accuracies)
 
-    def l_obs_prune(self, save_filename=None,max_time=10,recalculate_hessian=200,measure=10000):
-        self.forward(self.train_images)
-        print (self.test_testing())
-        iterations = 0
+    def l_obs_prune(self, save_filename=None,report_file='report_simple_l_obs.txt',measure=500):
         weights = self.calculate_weights()
+        errors_and_accuracies = -np.ones((weights//measure+1,2))
+
+        self.forward(self.train_images)
+        iterations = 0
 
         #Initially calculate inverse_hessian
         for layer in self.layers:
@@ -172,20 +159,15 @@ class Network:
             self.forward(self.train_images)
             layer.calculate_sub_inverse_hessian()
             loss = layer.calculate_loss()
-            errors_and_accuracies = -np.ones((weights//measure,2))
             while loss < layer.threshold:
                 if iterations % measure ==0:
-                    results = self.test()
-                    errors_and_accuracies[iterations/measure,:] = results
-                    print (results, iterations)
-                if iterations % measure ==0:
-                    results = self.test_testing()
-                    errors_and_accuracies[iterations//measure,:] = results
-                    print (loss, results, iterations)
+                    errors_and_accuracies[iterations//measure,:] = self.test_testing()
+                    print (loss, errors_and_accuracies[iterations//measure,:], iterations)
                 layer.prune()
                 loss = layer.calculate_loss()
                 iterations +=1
             print ('finished layer')
+        np.savetxt(report_file,errors_and_accuracies)
 
 
     def calculate_weights(self):
@@ -222,6 +204,6 @@ class Network:
 
 if __name__ =='__main__':
     n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
-    n.remove_by_magnatude()
+    n.l_obs_prune()
 
     #n.save_network(save_filename='l_obs')

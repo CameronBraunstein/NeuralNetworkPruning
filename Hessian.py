@@ -6,18 +6,22 @@ from time import time
 #     t = time()
 #     print('gen processes')
 #
-#     pool = mp.Pool(processes=process_number)
+#     pool = mp.Pool()
 #     print('here')
 #     #Divide X
 #     X_array = np.split(X,process_number)
-#     print('here')
+#     print(X_array)
 #     #Calculate hessian using all 4 processors
-#     results = pool.map(gen_hessian,X_array)
-#     print('here')
-#     pool.close()
 #
-#     print('here')
+#     #pool.map(gen_hessian,X_array[0])
+#     pool = mp.Pool()
+#     #pool.terminate()
+#     results = [pool.apply_async(gen_hessian, X ) for X in X_array]
+#
+#
 #     H = (float(1)/alpha)*np.eye(X.shape[1],X.shape[1])
+#
+#     print (results)
 #     for result in results:
 #         H +=result
 #
