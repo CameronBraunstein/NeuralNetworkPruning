@@ -28,7 +28,6 @@ class Layer:
         if retain_mask:
             self.unpruned_W = np.copy(self.W)
             self.unpruned_W[self.unpruned_W!=0] = 1
-            print(self.unpruned_W)
         else:
             self.unpruned_W = np.ones(self.W.shape)
 
