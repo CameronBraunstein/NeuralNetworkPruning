@@ -194,10 +194,34 @@ class Network:
             weights +=layer.W.shape[0]*layer.W.shape[1]
         return weights
 
+    def remove_by_magnatude(self,measure=500,report_file='report_control.txt'):
+        weights = self.calculate_weights()
+        errors_and_accuracies = -np.ones((weights//measure+1,2))
+        print(weights, len(errors_and_accuracies))
+
+        weights = [float("inf")]*len(self.layers)
+        for layer in self.layers:
+            layer.rank_weights()
+        for i in range(len(weights)):
+            weights[i] = self.layers[i].return_next_smallest()
+        last_pruned_layer = np.argmin(weights)
+        iterations = 0
+        while last_pruned_layer != -1:
+            self.layers[last_pruned_layer].prune_smallest_weight()
+            weights[last_pruned_layer]=self.layers[last_pruned_layer].return_next_smallest()
+            if min(weights)<float("inf"):
+                last_pruned_layer=np.argmin(weights)
+            else:
+                last_pruned_layer=-1
+            if iterations % measure == 0:
+                errors_and_accuracies[iterations//measure,:] = self.test_testing()
+                print(errors_and_accuracies[iterations//measure,:])
+            iterations +=1
+        np.savetxt(report_file,errors_and_accuracies)
+
 
 if __name__ =='__main__':
-    n = Network(from_file = 'l_obs',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
-    print(n.test_training())
-    print(n.test_testing())
+    n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
+    n.remove_by_magnatude()
 
     #n.save_network(save_filename='l_obs')

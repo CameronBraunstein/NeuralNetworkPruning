@@ -22,15 +22,16 @@ def weight_histogram(from_file):
     plt.title('Orders of Magnatude of Weights')
     plt.show()
 
-
-
-def view_report():
-    data=np.loadtxt('report.txt')
+def view_report(from_file):
+    data=np.loadtxt(from_file)
     x = np.arange(0,1,float(1)/data.shape[0])[::-1]
-    plt.plot(x,data[:,1],'r--', x,data[:,0], 'b^')
+    plt.plot(x,data[:,1],'r--')
     plt.xlim(1, 0)
     plt.xlabel('Compression Ratio')
+    plt.title('Comparing Compressions')
+    plt.ylabel('Accuracy')
     plt.show()
 
 if __name__ == '__main__':
-    weight_histogram('l_obs')
+    #weight_histogram('l_obs')
+    view_report('report_control.txt')
