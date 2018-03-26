@@ -2,7 +2,7 @@
 \usepackage[accepted]{icml2018}
 \usepackage{graphicx}
 
-\icmltitlerunning{Report Title}
+\icmltitlerunning{Neural Network Pruning Techniques}
 
 \begin{document}
 
@@ -14,11 +14,12 @@
 \begin{icmlauthorlist}
 \icmlauthor{Braunstein, Cameron}{dep2}
 \icmlauthor{Nair, Abhishek}{dep1}
-\icmlauthor{Shaw, Vishal}{dep1}
+\icmlauthor{Shaw, Vishal}{dep3}
 \end{icmlauthorlist}
 
-\icmlaffiliation{dep1}{Department of Computer Science and Automation, Indian Institute of Science, Bangalore}
+\icmlaffiliation{dep1}{Department of Electronic System Engineering, Indian Institute of Science, Bangalore}
 \icmlaffiliation{dep2}{Mathematics Department, Indian Institute of Science, Bangalore}
+\icmlaffiliation{dep3}{Electrical Communication Engineering, Indian Institute of Science, Bangalore}
 
 \icmlcorrespondingauthor{Braunstein, Cameron}{comeronb@iisc.ac.in}
 \icmlcorrespondingauthor{Nair, Abhishek}{abhisheknair@iisc.ac.in}
@@ -32,28 +33,23 @@
 \printAffiliationsAndNotice{}
 
 \begin{abstract}
-This project investigated various methods of pruning a neural network. We have found that
-The abstract should be ideally less than 10 short sentences. Among other things, provide information about what is your objective and how much progress has been made. 
+This project investigated various methods of pruning a neural network. We have demonstrated the effectiveness of the L-OBS algorithm. While the N2PS algorithm may be effective on smaller networks, it does not scale up successfully. 
 \end{abstract}
 
-\section{Introduction}
-\label{introduction}
-The PDF report should contain at most two pages excluding references and appendix and at most four pages including everything. Write about a subset of the following things that applies to your project:
-
-\begin{enumerate}
-	\item Problem Statement
-	\item Motivation
-	\item Literature Review
-	\item Dataset description
-	\item Preliminary Results
-	\item Future Work
-\end{enumerate}
+\section{Motivation}
+\label{Motivation}
+Deep neural networks are flexible function approximators that have been very successful in a
+broad range of tasks. They can easily scale to millions of parameters, which results in challenges to store and load the network. Additionally, large networks have the problem of overfitting and can even memorize random patterns.(put citation). One of the methods that we investigate is to address these issues is neural network pruning, which seeks to remove unimportant weights from the network. This makes the networks smaller in memory and can reduce overfitting. 
 \section{Literature Review}
 \label{Literature Review}
+Han et. al.(put citation), have introduced deep compression, a three stage method: pruning, quantization and Huffman encoding for compressing Neural networks. Firstly, they prune the trained network by removing the small-weight connections(connections with weight below a threshold is dropped), keeping only the most informative connections. Next, the weights are quantized so that multiple connections share the same weight, thus only the effective weights and the indices need to be stored. Finally, apply Huffman coding to take advantage of the biased distribution of effective weights.
+
+There is a need for retraining of the network after pruning to get the same accuracy. Also initially we have to train a fully connected network. Louizos et. al.(put citation), have proposed a technique for L0 regularization during training. Since L0 norm of weights are non differentiable they have realized it by smoothing the expected L0 norm with continuous distributions with hard nonlinearity in a way that can maintain the exact zeros in the parameters while still allowing for efficient gradient based optimization. 
+
 The Optimal Brain Surgeon algorithm (OBS) as described by Hassibi, Stork and Wolff (put citation), prunes weights based on their calculated effect on the error using a second order Taylor expansion of the error function, and adjusts the unpruned weights to compensate. Layerwise OBS (L-OBS) as described by Dong, Chen and Pan simplifies the OBS algorithm by only considering a weight's effect on local error. They demonstrate that any increase in the global error from pruning a weight is reasonably bounded above by the corresponding increase in local error by pruning that weight. Because of this, L-OBS approximates OBS and is more computationally feasible.
 
 \section{Model description}
-\label{Model description} For our experiments, we trained a 748-300-100-10 feed foward neural network to classify the MNIST dataset. We then tested several pruning algorithms on the network. We implemented magnitude based weight pruning as a control. We ran a simplified version of the L-OBS algorithm, which recalculated the inverse Hessian only after every 2000 pruned weights. We also ran this simplified L-OBS algorithm, with a 3 titration retraining after every 2000 pruned weights and then a recalculation of the inverse Hessian. In the original L-OBS algorithm, the inverse Hessian is recalculated after every pruned weight. However this change was made out of computational necessity.
+\label{Model description} For our experiments, we trained a 784-300-100-10 feed foward neural network with L2 regularization to classify the MNIST dataset. In total, there were 266200 prunable weights. We then tested several pruning algorithms on the network. We implemented magnitude based weight pruning as a control. We ran a simplified version of the L-OBS algorithm, which recalculated the inverse Hessian only after every 2000 pruned weights. We also ran this simplified L-OBS algorithm, with 3 iterations of retraining after every 2000 pruned weights and then a recalculation of the inverse Hessian. In the original L-OBS algorithm, the inverse Hessian is recalculated after every pruned weight. However this change was made out of computational necessity.
 
 \section{Preliminary Results}
 \label{Preliminary Results}
