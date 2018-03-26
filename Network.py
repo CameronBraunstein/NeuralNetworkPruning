@@ -54,7 +54,7 @@ class Network:
         return calculate_accuracy_and_error(outputs,self.test_labels)
 
 # Training the data
-    def train(self,iterations=10,batches=60000,save_filename=None):
+    def train(self,iterations=20,batches=60000,save_filename=None):
         indices = range(0,self.train_images.shape[0]+1,self.train_images.shape[0]//batches)
 
         for i in range(iterations):
@@ -161,13 +161,17 @@ class Network:
             
         alpha = alpha/num_inp_neurons #Normalizing 
         
-        for i in range(X.shape[1]):
+        num_pruned_neurons = 0
+        
+        for i in range(num_inp_neurons):
             if si[i] <= alpha:
+                num_pruned_neurons += 1
                 for j in range(W.shape[1]):
                     W[i][j] = 0
                     self.layers[0].unpruned_W[i][j] = 0
                     
         self.layers[0].W =  W
+        print("Number of neurons pruned in input layer is %d out of %d neurons" %(num_pruned_neurons,num_inp_neurons))
 
     def N2PS_prune_hidden_neurons(self,ftnet,layer=0):
         
@@ -199,8 +203,11 @@ class Network:
         beta = si.sum(axis=0)
         beta = beta/num_hid_neurons    
         
+        num_pruned_neurons = 0
+        
         for i in range(num_hid_neurons):
             if si[i] <= beta:
+                num_pruned_neurons += 1
                 for k in range(inp_Wt.shape[0]):
                     inp_Wt[k][i] = 0
                     self.layers[layer].unpruned_W[k][i] = 0
@@ -210,7 +217,7 @@ class Network:
                     
         self.layers[layer].W = inp_Wt 
         self.layers[layer+1].W = out_Wt 
-        
+        print("Number of neurons pruned in hidden layer %d is %d out of %d neurons" %(layer,num_pruned_neurons,num_hid_neurons))
         return ftnet
 
 
@@ -223,10 +230,11 @@ print(n.test_training())
 
 n.N2PS_prune_input_neurons() #Pruning of input layer
 
+
 ftnet = 0
 
 for layer in range(len(n.layers)-1):
-    ftnet = n.N2PS_prune_hidden_neurons(ftnet,layer=layer) #Pruning of hidden layer
+    ftnet = n.N2PS_prune_hidden_neurons(ftnet,layer=layer)#Pruning of hidden layer
     
 print("After Pruning")
 n.train()
