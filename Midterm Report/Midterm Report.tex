@@ -33,61 +33,56 @@
 \printAffiliationsAndNotice{}
 
 \begin{abstract}
-This project investigated various methods of pruning a neural network. We have demonstrated the effectiveness of the L-OBS algorithm. While the N2PS algorithm may be effective on smaller networks, it does not scale up successfully. 
+This project investigated various methods of pruning a neural network. After a literature survey on various algorithms, we finalized two distinct approaches: Layered Optimal Brain Surgeon (L-OBS) and Neural Network Pruning by Significance (N2PS) for implementation. The findings were clear that L-OBS works well for larger networks compared to N2PS algorithm in terms of pruning. We would want to explore a novel algorithm for pruning based on our findings. 
 \end{abstract}
 
 \section{Motivation}
 \label{Motivation}
 Deep neural networks are flexible function approximators that have been very successful in a
-broad range of tasks. They can easily scale to millions of parameters, which results in challenges to store and load the network. Additionally, large networks have the problem of overfitting and can even memorize random patterns.(put citation). One of the methods that we investigate is to address these issues is neural network pruning, which seeks to remove unimportant weights from the network. This makes the networks smaller in memory and can reduce overfitting. 
+broad range of tasks. They can easily scale to millions of parameters, which results in challenges to store and load the network. Additionally, large networks can overfit to training data and can even memorize random patterns \cite{Louizos17}. Neural network pruning seeks to remove unimportant weights from the network. This reduces the network's size in memory and can reduce overfitting. 
 \section{Literature Review}
 \label{Literature Review}
-Han et. al.(put citation), have introduced deep compression, a three stage method: pruning, quantization and Huffman encoding for compressing Neural networks. Firstly, they prune the trained network by removing the small-weight connections(connections with weight below a threshold is dropped), keeping only the most informative connections. Next, the weights are quantized so that multiple connections share the same weight, thus only the effective weights and the indices need to be stored. Finally, apply Huffman coding to take advantage of the biased distribution of effective weights.
+The Optimal Brain Surgeon algorithm (OBS) takes a pretrained network, and prunes weights based on their calculated effect on the error using a second order Taylor expansion of the error function, and adjusts the unpruned weights to compensate \cite{Hassibi93}. Layerwise OBS (L-OBS) simplifies the OBS algorithm by only considering a weight's effect on local error. It has been demonstrated that any increase in the total error from pruning a weight is reasonably bounded above by the corresponding increase in local error by pruning that weight \cite{Dong17}. Thus L-OBS approximates OBS and is more computationally feasible.
 
-There is a need for retraining of the network after pruning to get the same accuracy. Also initially we have to train a fully connected network. Louizos et. al.(put citation), have proposed a technique for L0 regularization during training. Since L0 norm of weights are non differentiable they have realized it by smoothing the expected L0 norm with continuous distributions with hard nonlinearity in a way that can maintain the exact zeros in the parameters while still allowing for efficient gradient based optimization. 
+The N2PS algorithm optimizes the structure of neural networks by pruning neurons from each layer. The pruning is done based on the significance of each neuron, which is calculated by getting the normalized average value of neurons for each layer, followed by comparing each neuron value with the normalized average value. The neurons which have less than significant value is pruned and the network is retrained for accuracy \cite{Augasta11}.
 
-The Optimal Brain Surgeon algorithm (OBS) as described by Hassibi, Stork and Wolff (put citation), prunes weights based on their calculated effect on the error using a second order Taylor expansion of the error function, and adjusts the unpruned weights to compensate. Layerwise OBS (L-OBS) as described by Dong, Chen and Pan simplifies the OBS algorithm by only considering a weight's effect on local error. They demonstrate that any increase in the global error from pruning a weight is reasonably bounded above by the corresponding increase in local error by pruning that weight. Because of this, L-OBS approximates OBS and is more computationally feasible.
+L0 regularization is a pruning technique which can be executed during the networks' initial training phase. The L0 norm of the weights is non differentiable. However by smoothing the expected L0 norm with continuous distributions with hard nonlinearity, it is possible to maintain exact zeros in the pruned weights while still allowing for efficient gradient based optimization \cite{Louizos17}. 
 
-\section{Model description}
-\label{Model description} For our experiments, we trained a 784-300-100-10 feed foward neural network with L2 regularization to classify the MNIST dataset. In total, there were 266200 prunable weights. We then tested several pruning algorithms on the network. We implemented magnitude based weight pruning as a control. We ran a simplified version of the L-OBS algorithm, which recalculated the inverse Hessian only after every 2000 pruned weights. We also ran this simplified L-OBS algorithm, with 3 iterations of retraining after every 2000 pruned weights and then a recalculation of the inverse Hessian. In the original L-OBS algorithm, the inverse Hessian is recalculated after every pruned weight. However this change was made out of computational necessity.
+The Deep Compression method combines pruning with other size reduction techniques. First, a trained network is pruned by magnitude, ie, weights with an absolute value below a threshold are dropped.        Next, the weights are quantized so that multiple connections share the same weight, thus only the effective weights and the indices need to be stored. Finally, apply Huffman coding to take advantage of the biased distribution of effective weights \cite{Han15}.
+
+\section{Experiment Description}
+\label{Experiment Description} We trained a 784-300-100-10 feed foward neural network with L2 regularization to classify the MNIST dataset. There were 266200 prunable weights in total. We then tested several pruning algorithms on the network. 
+
+In our first experiment, we ran N2PS algorithm on this network.
+
+We then compared thee approaches, which could be run until they reached a compression ratio of 0. We implemented magnitude based weight pruning as a control. Against this, we ran a simplified version of the L-OBS algorithm, which recalculated the inverse Hessian only after every 2000 pruned weights. We also ran this simplified L-OBS algorithm, with 3 iterations of retraining after every 2000 pruned weights and then a recalculation of the inverse Hessian. In the original L-OBS algorithm, the inverse Hessian is recalculated after every pruned weight. However this change was made out of computational necessity.
 
 \section{Preliminary Results}
 \label{Preliminary Results}
 
-\includegraphics[scale=0.65]{Comparison}
+The N2PS algorithm as per literature performed the best for smaller networks like iris-dataset, breast-cancer, diabetes, ionosphere, wave, etc. These dataset are of the order of 50-10-2 network architecture. For these architecture, N2PS pruning helped improve the accuracy of the network. Results which were obtained on 748-300-100-10 network using N2PS seemed to reduce the accuracy .
+
+\includegraphics[scale=0.55]{Comparison}
 
 Our control, the Magnitude Based Pruning, dropped in accuracy the fastest, followed by our simplified L-OBS algorithm and then simplified L-OBS with retraining. The L-OBS with retraining graph is particularly jagged, as retraining every 2000 prunings resulted in spikes of accuracy, particularly as the network became more sparse. Interestingly, all algorithms stayed closed to their initial test accuracy until a compression ratio of approximately 0.6. This suggests that the network has redundancies which can be eliminated before training begins.
+
+
+
+From the results, we clearly see that N2PS seems to struggle with bigger than 100 neuron network. On the other hand L-OBS seems to be a stable and viable option for neural network pruning for larger networks. 
 
 \section{Future Work}
 \label{Future Work}
 
-We hope to combine several of our tested algorithms to see if we can achieve even better compression without loss in accuracy.
+We hope to combine several of our tested algorithms to see if we can achieve even better compression without loss in accuracy. We also hope to explore L0 regularization in depth. 
 
-You can additionally provide anything else that is relevant to your project but is not present in the list given above. 
-
-You can create various sections/subsections etc. to organize your report as per the need. Use \texttt{biblio.bib} file to provide references. The references should be provided by using cite keyword \cite{langley00}.
-
-You can contact your project mentor if you have any confusion.
-
+One interesting algorithm we would want to explore is to try and optimize L0 regularization and implement it layer wise just like we have seen in case of OBS.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \newpage
 
 \bibliography{biblio}
 \bibliographystyle{icml2018}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Remove this part if you are not using an Appendix. Appendix is ungraded. The
-% reader may wish to ignore the appendix altogether. Write everything that you
-% think is important in the main report text only.
-
-\appendix
-\section{Optional Appendix (Ungraded)}
-Remove this part if you are not using an Appendix. Appendix is ungraded. The
-reader may wish to ignore the appendix altogether. Write everything that you
-think is important in the main report text only.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}

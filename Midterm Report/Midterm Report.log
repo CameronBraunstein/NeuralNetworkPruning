@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  26 MAR 2018 16:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  26 MAR 2018 18:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -229,16 +229,6 @@ Underfull \hbox (badness 1308) in paragraph at lines 36--37
 []\OT1/ptm/m/n/10 This project in-ves-ti-gated var-i-ous meth-ods of
  []
 
-<Comparison.png, id=1, 462.528pt x 346.896pt>
-File: Comparison.png Graphic file (type png)
- <use Comparison.png>
-Package pdftex.def Info: Comparison.png used on input line 57.
-(pdftex.def)             Requested size: 300.63962pt x 225.47972pt.
-
-Overfull \hbox (65.76212pt too wide) in paragraph at lines 57--58
-[][] 
- []
-
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -247,42 +237,68 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 ]
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 68.
+<Comparison.png, id=10, 462.528pt x 346.896pt>
+File: Comparison.png Graphic file (type png)
+ <use Comparison.png>
+Package pdftex.def Info: Comparison.png used on input line 65.
+(pdftex.def)             Requested size: 254.39117pt x 190.79338pt.
+
+Overfull \hbox (19.51367pt too wide) in paragraph at lines 65--66
+[][] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [2 <./Comparison.png>] (./Midterm Report.bbl
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 22.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
+Underfull \hbox (badness 7540) in paragraph at lines 25--30
+[]\OT1/ptm/m/n/10 Han, Song, Mao, Huizi, and Dally, William J.
+ []
 
-Package natbib Warning: Citation `langley00' on page 2 undefined on input line 
-68.
 
-No file "Midterm Report".bbl.
+Underfull \hbox (badness 10000) in paragraph at lines 25--30
+\OT1/ptm/m/n/10 Deep com-pres-sion: Com-press-ing deep neu-
+ []
 
-Package natbib Warning: There were undefined citations.
 
-[2 <./Comparison.png>] (./Midterm Report.aux)
+Underfull \hbox (badness 10000) in paragraph at lines 25--30
+\OT1/ptm/m/n/10 ral net-work with prun-ing, trained quan-ti-za-
+ []
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
- ) 
+Underfull \hbox (badness 2469) in paragraph at lines 25--30
+\OT1/ptm/m/n/10 tion and huff-man cod-ing.  \OT1/ptm/m/it/10 CoRR\OT1/ptm/m/n/1
+0 , 2015.  URL
+ []
+
+) [3
+
+] (./Midterm Report.aux) ) 
 Here is how much of TeX's memory you used:
- 2452 strings out of 492995
- 34659 string characters out of 6132704
- 105067 words of memory out of 5000000
- 5961 multiletter control sequences out of 15000+600000
- 21520 words of font info for 42 fonts, out of 8000000 for 9000
+ 2473 strings out of 492995
+ 34965 string characters out of 6132704
+ 106363 words of memory out of 5000000
+ 5979 multiletter control sequences out of 15000+600000
+ 23204 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,11n,45p,786b,209s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
-exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/tex
-live/2017/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/201
-7/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2017/texmf-di
-st/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/t
-ype1/urw/times/utmri8a.pfb>
-Output written on "Midterm Report.pdf" (2 pages, 133217 bytes).
+ 39i,11n,45p,661b,207s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/b
+ase/8r.enc}</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mmi10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+mi9.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr1
+0.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></
+usr/local/texlive/2017/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/
+texlive/2017/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/20
+17/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on "Midterm Report.pdf" (3 pages, 157052 bytes).
 PDF statistics:
- 35 PDF objects out of 1000 (max. 8388607)
- 23 compressed objects within 1 object stream
+ 46 PDF objects out of 1000 (max. 8388607)
+ 31 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

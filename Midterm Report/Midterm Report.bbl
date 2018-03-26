@@ -1,0 +1,41 @@
+\begin{thebibliography}{5}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Augasta \& Kathirvalavakumar(2011)Augasta and
+  Kathirvalavakumar]{Augasta11}
+Augasta, M.Gethsiyal and Kathirvalavakumar, T.
+\newblock A novel pruning algorithm for optimizing feedforward neural network
+  of classification problems.
+\newblock \emph{Neural Processing Letters}, 34:\penalty0 241--258, 12 2011.
+\newblock \doi{10.1007/s11063-011-9196-7}.
+
+\bibitem[Dong et~al.(2017)Dong, Chen, and Pan]{Dong17}
+Dong, Xin, Chen, Shangyu, and Pan, Sinno~Jialin.
+\newblock Learning to prune deep neural networks via layer-wise optimal brain
+  surgeon.
+\newblock \emph{Advances in Neural Information Processing Systems (NIPS 2017)},
+  30, 11 2017.
+\newblock URL \url{https://arxiv.org/pdf/1705.07565}.
+
+\bibitem[Han et~al.(2015)Han, Mao, and Dally]{Han15}
+Han, Song, Mao, Huizi, and Dally, William~J.
+\newblock Deep compression: Compressing deep neural network with pruning,
+  trained quantization and huffman coding.
+\newblock \emph{CoRR}, 2015.
+\newblock URL \url{http://arxiv.org/abs/1510.00149}.
+
+\bibitem[Hassibi et~al.(1993)Hassibi, G.Stork, and J.~Wolff]{Hassibi93}
+Hassibi, Babak, G.Stork, David, and J.~Wolff, Gregory.
+\newblock Optimal brain surgeon and general network pruning.
+\newblock pp.\  293 -- 299 vol.1, 02 1993.
+
+\bibitem[Louizos et~al.(2017)Louizos, Welling, and Kingma]{Louizos17}
+Louizos, C., Welling, M., and Kingma, D.~P.
+\newblock {Learning Sparse Neural Networks through $L\_0$ Regularization}.
+\newblock \emph{ArXiv e-prints}, 12 2017.
+
+\end{thebibliography}
