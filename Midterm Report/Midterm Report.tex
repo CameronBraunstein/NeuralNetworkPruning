@@ -44,7 +44,7 @@ broad range of tasks. They can easily scale to millions of parameters, which res
 \label{Literature Review}
 The Optimal Brain Surgeon algorithm (OBS) takes a pretrained network, and prunes weights based on their calculated effect on the error using a second order Taylor expansion of the error function, and adjusts the unpruned weights to compensate \cite{Hassibi93}. Layerwise OBS (L-OBS) simplifies the OBS algorithm by only considering a weight's effect on local error. It has been demonstrated that any increase in the total error from pruning a weight is reasonably bounded above by the corresponding increase in local error by pruning that weight \cite{Dong17}. Thus L-OBS approximates OBS and is more computationally feasible.
 
-The N2PS algorithm optimizes the structure of neural networks by pruning neurons from each layer. The pruning is done based on the significance of each neuron, which is calculated by getting the normalized average value of neurons for each layer, followed by comparing each neuron value with the normalized average value. The neurons which have less than significant value is pruned and the network is retrained for accuracy \cite{Augasta11}.
+The N2PS algorithm optimizes the structure of neural networks by pruning neurons from each layer. The pruning is done based on the significance of each neuron, which is calculated by getting the normalized average value of neurons for each layer.This is followed by comparing each neuron value with the normalized average value i.e. the significant value. The neurons which have less than the significant value is pruned and the network is retrained for accuracy \cite{Augasta11}.
 
 L0 regularization is a pruning technique which can be executed during the networks' initial training phase. The L0 norm of the weights is non differentiable. However by smoothing the expected L0 norm with continuous distributions with hard nonlinearity, it is possible to maintain exact zeros in the pruned weights while still allowing for efficient gradient based optimization \cite{Louizos17}. 
 
@@ -53,25 +53,45 @@ The Deep Compression method combines pruning with other size reduction technique
 \section{Experiment Description}
 \label{Experiment Description} We trained a 784-300-100-10 feed foward neural network with L2 regularization to classify the MNIST dataset. There were 266200 prunable weights in total. We then tested several pruning algorithms on the network. 
 
-In our first experiment, we ran N2PS algorithm on this network.
+In our first experiment, we ran N2PS algorithm on this network. We implemented the algorithm where instead of pruning the neurons, we assigned the weights associated with the pruned neuron as zero.
 
-We then compared thee approaches, which could be run until they reached a compression ratio of 0. We implemented magnitude based weight pruning as a control. Against this, we ran a simplified version of the L-OBS algorithm, which recalculated the inverse Hessian only after every 2000 pruned weights. We also ran this simplified L-OBS algorithm, with 3 iterations of retraining after every 2000 pruned weights and then a recalculation of the inverse Hessian. In the original L-OBS algorithm, the inverse Hessian is recalculated after every pruned weight. However this change was made out of computational necessity.
+We then compared these approaches, which could be run until they reached a compression ratio of 0. We implemented magnitude based weight pruning as a control. Against this, we ran a simplified version of the L-OBS algorithm, which recalculated the inverse Hessian only after every 2000 pruned weights. We also ran this simplified L-OBS algorithm, with 3 iterations of retraining after every 2000 pruned weights and then a recalculation of the inverse Hessian. In the original L-OBS algorithm, the inverse Hessian is recalculated after every pruned weight. However this change was made out of computational necessity.
 
 \section{Preliminary Results}
 \label{Preliminary Results}
 
 \begin{center}
-\textbf{N2PS on MNIST}
+\textbf{N2PS on smaller data set (Literature Survey data)}
+\begin{tabular}{|c|c|c|c|} 
+\hline
+\multicolumn{4}{|c|}{Accuracy} \\
+\hline
+Dataset&Architecture&Pre Pruning&Post Pruning\\
+\hline
+Iris & 4-10-3 & 97.3\% & 98.67\%  \\ 
+Cancer & 9-10-2 & 95.4\% & 97.1\%  \\ 
+Ionosphere & 34-10-2 &91.4\% & 94.9\% \\
+\hline
+\end{tabular}
+\end{center}
+\vspace*{-0.28cm}
+The N2PS algorithm as per literature performed the best for smaller networks like iris-dataset, breast-cancer, ionosphere etc. These dataset are of the order of 50-10-2 network architecture. For these architecture, N2PS pruning helped improve the accuracy of the network.
+\begin{center}
+\textbf{N2PS on MNIST (Based on our Experiment)}
 
- \begin{tabular}{|c| c|} 
+ \begin{tabular}{|c|c|c|c|}
  \hline
-Accuracy Before Pruning & Accuracy After Pruning  \\
+ \multicolumn{4}{|c|}{Accuracy} \\
  \hline
- 94.6\% & 89.98\%  \\ 
+Dataset & Architecture & Pre Pruning & Post Pruning  \\
+ \hline
+MNIST  & 784-300-100-10 & 94.6\% & 89.98\%  \\ 
  \hline
  \end{tabular}
 \end{center}
-The N2PS algorithm as per literature performed the best for smaller networks like iris-dataset, breast-cancer, diabetes, ionosphere, wave, etc. These dataset are of the order of 50-10-2 network architecture. For these architecture, N2PS pruning helped improve the accuracy of the network. Results which were obtained on 748-300-100-10 network using N2PS seemed to reduce the accuracy .
+
+ Results which were obtained on 748-300-100-10 network using N2PS seemed to reduce the accuracy .
+With smaller architecture, the distinctiveness of a contributing neuron would be higher compared to a larger network where lot of the contributing neurons might get pruned if they lie just below the threshold value. Hence N2PS algorithm seem to work well on smaller network. 
 
 \includegraphics[scale=0.65]{Comparison}
 
