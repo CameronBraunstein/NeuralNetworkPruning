@@ -48,7 +48,7 @@ The N2PS algorithm optimizes the structure of neural networks by pruning neurons
 
 L0 regularization is a pruning technique which can be executed during the networks' initial training phase. The L0 norm of the weights is non differentiable. However by smoothing the expected L0 norm with continuous distributions with hard nonlinearity, it is possible to maintain exact zeros in the pruned weights while still allowing for efficient gradient based optimization \cite{Louizos17}. 
 
-The Deep Compression method combines pruning with other size reduction techniques. First, a trained network is pruned by magnitude, ie, weights with an absolute value below a threshold are dropped.        Next, the weights are quantized so that multiple connections share the same weight, thus only the effective weights and the indices need to be stored. Finally, apply Huffman coding to take advantage of the biased distribution of effective weights \cite{Han15}.
+The Deep Compression method combines pruning with other size reduction techniques. First, a trained network is pruned by magnitude, ie, weights with an absolute value below a threshold are dropped. Next, weight values are quantized, so that multiple connections share the same weight, thus only the effective weights and the indices need to be stored. Finally, Huffman coding is applied to take advantage of the biased distribution of effective weights \cite{Han15}.
 
 \section{Experiment Description}
 \label{Experiment Description} We trained a 784-300-100-10 feed foward neural network with L2 regularization to classify the MNIST dataset. There were 266200 prunable weights in total. We then tested several pruning algorithms on the network. 
@@ -60,13 +60,22 @@ We then compared thee approaches, which could be run until they reached a compre
 \section{Preliminary Results}
 \label{Preliminary Results}
 
+\begin{center}
+\textbf{N2PS on MNIST}
+
+ \begin{tabular}{|c| c|} 
+ \hline
+Accuracy Before Pruning & Accuracy After Pruning  \\
+ \hline
+ 94.6\% & 89.98\%  \\ 
+ \hline
+ \end{tabular}
+\end{center}
 The N2PS algorithm as per literature performed the best for smaller networks like iris-dataset, breast-cancer, diabetes, ionosphere, wave, etc. These dataset are of the order of 50-10-2 network architecture. For these architecture, N2PS pruning helped improve the accuracy of the network. Results which were obtained on 748-300-100-10 network using N2PS seemed to reduce the accuracy .
 
-\includegraphics[scale=0.55]{Comparison}
+\includegraphics[scale=0.65]{Comparison}
 
 Our control, the Magnitude Based Pruning, dropped in accuracy the fastest, followed by our simplified L-OBS algorithm and then simplified L-OBS with retraining. The L-OBS with retraining graph is particularly jagged, as retraining every 2000 prunings resulted in spikes of accuracy, particularly as the network became more sparse. Interestingly, all algorithms stayed closed to their initial test accuracy until a compression ratio of approximately 0.6. This suggests that the network has redundancies which can be eliminated before training begins.
-
-
 
 From the results, we clearly see that N2PS seems to struggle with bigger than 100 neuron network. On the other hand L-OBS seems to be a stable and viable option for neural network pruning for larger networks. 
 

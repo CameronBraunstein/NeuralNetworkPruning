@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  26 MAR 2018 18:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  26 MAR 2018 18:43
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -240,15 +240,15 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 <Comparison.png, id=10, 462.528pt x 346.896pt>
 File: Comparison.png Graphic file (type png)
  <use Comparison.png>
-Package pdftex.def Info: Comparison.png used on input line 65.
-(pdftex.def)             Requested size: 254.39117pt x 190.79338pt.
+Package pdftex.def Info: Comparison.png used on input line 76.
+(pdftex.def)             Requested size: 300.63962pt x 225.47972pt.
 
-Overfull \hbox (19.51367pt too wide) in paragraph at lines 65--66
+Overfull \hbox (65.76212pt too wide) in paragraph at lines 76--77
 [][] 
  []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 7981) has occurred while \output is active []
 
  [2 <./Comparison.png>] (./Midterm Report.bbl
 LaTeX Font Info:    Try loading font information for OT1+pcr on input line 22.
@@ -295,7 +295,7 @@ mi9.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr1
 usr/local/texlive/2017/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/
 texlive/2017/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/20
 17/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on "Midterm Report.pdf" (3 pages, 157052 bytes).
+Output written on "Midterm Report.pdf" (3 pages, 157918 bytes).
 PDF statistics:
  46 PDF objects out of 1000 (max. 8388607)
  31 compressed objects within 1 object stream
