@@ -70,6 +70,52 @@ class Layer:
         loss_list = self.loss_matrix.reshape(-1).argsort()
         self.loss_indices = iter([ [i//self.loss_matrix.shape[1],i%self.loss_matrix.shape[1]] for i in loss_list])
 
+    def calculate_propagated_losses(self,next_layer=None):
+
+        self.sub_inverse_hessian = gen_inverse(self.X)
+        print(self.sub_inverse_hessian.shape)
+        print(self.W.shape)
+
+
+        self.loss_matrix = self.W*self.W / np.diag(self.sub_inverse_hessian).reshape(len(self.sub_inverse_hessian),-1)
+        self.propagated_losses = self.loss_matrix
+        if next_layer is not None:
+            # for k in range(len(self.sub_inverse_hessian)):
+            #     print(next_layer.W.shape,self.X.shape,self.W.shape)
+            #     P= np.dot(next_layer.W[k],next_layer.W[k])/(16*len(self.X)*abs(self.sub_inverse_hessian[k][k]))*sum([np.dot(x,self.sub_inverse_hessian[:,k])**2 for x in self.X])
+            #     self.propagated_losses[:,k] +=P
+            for j in range(self.sub_inverse_hessian.shape[0]):
+                j_term = sum([np.dot(x,self.sub_inverse_hessian[:,j])**2 for x in self.X])
+                j_term /= 16*len(self.X)*abs(self.sub_inverse_hessian[j][j])
+                for k in range(next_layer.W.shape[0]):
+                    P = np.dot(next_layer.W[k],next_layer.W[k])*j_term
+                    self.propagated_losses[j][k] *= P
+
+        #Ensure nothing goes above the threshold
+        self.propagated_losses[np.where(self.propagated_losses>self.threshold)] = float("inf")
+
+        #Set already pruned weights to inf
+        for i in range(self.unpruned_W.shape[0]):
+            for j in range(self.unpruned_W.shape[1]):
+                if self.unpruned_W[i][j] == 0:
+                    self.propagated_losses[i][j]= float("inf")
+        loss_list = self.propagated_losses.reshape(-1).argsort()
+        self.loss_indices = iter([ [i//self.propagated_losses.shape[1],i%self.propagated_losses.shape[1]] for i in loss_list])
+
+
+    def set_threshold(self,new_threshold):
+        self.threshold = new_threshold
+
+    def return_losses(self):
+        try:
+            self.i_j = next(self.loss_indices)
+        except StopIteration:
+            return float("inf"),float("inf")
+        i,j = self.i_j[0],self.i_j[1]
+        self.delta_W = (-float(self.W[i][j]) / self.sub_inverse_hessian[i][i])*self.sub_inverse_hessian[:,i]
+        return self.loss_matrix[i,j],self.propagated_losses[i,j]
+
+
 
     def calculate_loss(self):
         try:

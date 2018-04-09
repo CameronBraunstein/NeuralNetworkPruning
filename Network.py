@@ -76,7 +76,7 @@ class Network:
             #delta = self.layers[-i].backward(delta,self.learning_rate,new_delta_scalar=220000)
             delta = self.layers[-i].backward(delta,self.learning_rate)
 
-    def train(self,iterations=3,batches=60000,save_filename=None):
+    def train(self,iterations=1,batches=60000,save_filename=None):
         indices = range(0,self.train_images.shape[0]+1,self.train_images.shape[0]//batches)
 
         for i in range(iterations):
@@ -167,9 +167,42 @@ class Network:
             iterations +=1
         np.savetxt(report_file,errors_and_accuracies)
 
+    def prune_single_epsilon(self,epsilon,measure=500, report_file='single_epsilon.txt'):
+        weights = self.calculate_weights()
+        errors_and_accuracies = -np.ones((weights//measure+1,2))
+        iterations = 0
+        self.forward(self.train_images)
+        max_loss = epsilon
+        iterations = 0
+        for layer_pair in zip(self.layers[::-1],[None]+self.layers[::-1][:-1]):
+            layer, next_layer = layer_pair
+            layer.set_threshold(max_loss)
+
+            layer.calculate_propagated_losses(next_layer)
+            loss, propagated_loss = layer.return_losses()
+
+            max_loss = 0
+            while propagated_loss<float("inf"):
+
+                if iterations%measure == 0:
+                    errors_and_accuracies[iterations//measure,:] = self.test_testing()
+                    print(errors_and_accuracies[iterations//measure,:])
+                iterations +=1
+
+                max_loss = loss if loss>max_loss else max_loss
+                layer.prune()
+                loss, propagated_loss = layer.return_losses()
+
+            self.train()
+        np.savetxt(report_file,errors_and_accuracies)
+
+
+
+
 
 if __name__ =='__main__':
     n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
-    n.l_obs_prune_continuous(report_file='report_l_obs_continuous_retrain.txt',retrain=True)
+    #n.l_obs_prune_continuous(report_file='report_l_obs_continuous_retrain.txt',retrain=True)
+    n.prune_single_epsilon(0.2)
 
     #n.save_network(save_filename='l_obs')
