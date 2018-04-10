@@ -176,11 +176,18 @@ class Network:
         max_loss = epsilon
         iterations = 0
         for layer_pair in zip(self.layers[::-1],[None]+self.layers[::-1][:-1]):
+            print('max_loss', max_loss)
             layer, next_layer = layer_pair
             layer.set_threshold(max_loss)
 
+            losses = []
+            prop_losses=[]
+
             layer.calculate_propagated_losses(next_layer)
             loss, propagated_loss = layer.return_losses()
+
+            losses.append(loss)
+            prop_losses.append(propagated_loss)
 
             max_loss = 0
             while propagated_loss<float("inf"):
@@ -194,10 +201,31 @@ class Network:
                 layer.prune()
                 loss, propagated_loss = layer.return_losses()
 
-            self.train()
+                losses.append(loss)
+                prop_losses.append(propagated_loss)
 
-        plt.scatter(self.layers[0].loss_matrix.flat,self.layers[0].propagated_losses.flat, c='g')
-        plt.show()
+            self.train()
+            while True:
+                try:
+                    losses.remove(float("inf"))
+                except ValueError:
+                    break
+
+            f, axarr = plt.subplots(2, 1)
+            f.suptitle('Loss vs. Propagated Loss')
+            axarr[0].scatter(range(len(losses)),losses, marker='x', s=1)
+            axarr[0].set_title('Losses')
+            axarr[1].scatter(range(len(prop_losses)),prop_losses, marker='x', s=1)
+            axarr[1].set_title('Prop Losses')
+            f.subplots_adjust(hspace=0.9)
+
+            plt.show()
+
+
+        #plt.scatter(self.layers[0].loss_matrix.flat,self.layers[0].propagated_losses.flat, c='g', marker='x', s=1)
+
+        #plt.axhline(y=self.layers[0].threshold,color='r', linestyle='-')
+        #plt.show()
         if report_file is not None:
             np.savetxt(report_file,errors_and_accuracies)
 
@@ -208,7 +236,7 @@ class Network:
 if __name__ =='__main__':
     n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
     #n.l_obs_prune_continuous(report_file='report_l_obs_continuous_retrain.txt',retrain=True)
-    n.prune_single_epsilon(0.2, report_file='single_epsilon.txt')
+    n.prune_single_epsilon(0.1, report_file=None)
 
 
     #n.save_network(save_filename='l_obs')
