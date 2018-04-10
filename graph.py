@@ -29,8 +29,11 @@ def weight_histogram(from_file):
 def view_report(from_file):
     data=np.loadtxt(from_file)
     x = np.arange(0,1,float(1)/data.shape[0])[::-1]
-    plt.plot(x,data[:,1],'r--')
+    endpoint = list(data[:,1]).index(-1)
+    print (endpoint)
+    plt.plot(x[:endpoint],data[:,1][:endpoint],'r--')
     plt.xlim(1, 0)
+    plt.ylim(0, 1)
     plt.xlabel('Compression Ratio')
     plt.title('Comparison of Pruning Algorithms')
     plt.ylabel('Accuracy')
@@ -56,5 +59,5 @@ def compare(file1,file2,file3):
 
 if __name__ == '__main__':
     #weight_histogram('l_obs')
-    compare('report_l_obs_continuous_retrain.txt','report_continuous_l_obs.txt','report_control.txt')
-    #view_report('report_simple_l_obs.txt')
+    #compare('report_l_obs_continuous_retrain.txt','report_continuous_l_obs.txt','report_control.txt')
+    view_report('single_epsilon.txt')

@@ -4,6 +4,7 @@ import math
 from time import time
 from Hessian import gen_inverse
 
+
 def sigmoid(x):
     return float(1)/(1+math.e**(-x))
 
@@ -78,18 +79,15 @@ class Layer:
 
 
         self.loss_matrix = self.W*self.W / np.diag(self.sub_inverse_hessian).reshape(len(self.sub_inverse_hessian),-1)
-        self.propagated_losses = self.loss_matrix
+        self.propagated_losses = np.copy(self.loss_matrix)
         if next_layer is not None:
-            # for k in range(len(self.sub_inverse_hessian)):
-            #     print(next_layer.W.shape,self.X.shape,self.W.shape)
-            #     P= np.dot(next_layer.W[k],next_layer.W[k])/(16*len(self.X)*abs(self.sub_inverse_hessian[k][k]))*sum([np.dot(x,self.sub_inverse_hessian[:,k])**2 for x in self.X])
-            #     self.propagated_losses[:,k] +=P
             for j in range(self.sub_inverse_hessian.shape[0]):
                 j_term = sum([np.dot(x,self.sub_inverse_hessian[:,j])**2 for x in self.X])
                 j_term /= 16*len(self.X)*abs(self.sub_inverse_hessian[j][j])
                 for k in range(next_layer.W.shape[0]):
                     P = np.dot(next_layer.W[k],next_layer.W[k])*j_term
                     self.propagated_losses[j][k] *= P
+                    #print(P,self.loss_matrix[j,k],self.propagated_losses[j,k])
 
         #Ensure nothing goes above the threshold
         self.propagated_losses[np.where(self.propagated_losses>self.threshold)] = float("inf")

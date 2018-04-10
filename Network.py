@@ -3,6 +3,7 @@ import numpy as np
 import DataLoader as dl
 import FileLoader as fl
 import Layer as l
+import matplotlib.pyplot as plt
 
 from time import time
 
@@ -167,7 +168,7 @@ class Network:
             iterations +=1
         np.savetxt(report_file,errors_and_accuracies)
 
-    def prune_single_epsilon(self,epsilon,measure=500, report_file='single_epsilon.txt'):
+    def prune_single_epsilon(self,epsilon,measure=500, report_file=None):
         weights = self.calculate_weights()
         errors_and_accuracies = -np.ones((weights//measure+1,2))
         iterations = 0
@@ -194,7 +195,11 @@ class Network:
                 loss, propagated_loss = layer.return_losses()
 
             self.train()
-        np.savetxt(report_file,errors_and_accuracies)
+
+        plt.scatter(self.layers[0].loss_matrix.flat,self.layers[0].propagated_losses.flat, c='g')
+        plt.show()
+        if report_file is not None:
+            np.savetxt(report_file,errors_and_accuracies)
 
 
 
@@ -203,6 +208,7 @@ class Network:
 if __name__ =='__main__':
     n = Network(from_file = 'unpruned',learning_rate=1e-7,epsilons=[3.16e+2,3.16e+2,2.2e+2],retain_mask=True) #3e-5 #1e-5 is good for fine tuning, 5e-5 good for approx
     #n.l_obs_prune_continuous(report_file='report_l_obs_continuous_retrain.txt',retrain=True)
-    n.prune_single_epsilon(0.2)
+    n.prune_single_epsilon(0.2, report_file='single_epsilon.txt')
+
 
     #n.save_network(save_filename='l_obs')
