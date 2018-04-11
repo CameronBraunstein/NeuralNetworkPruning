@@ -57,7 +57,25 @@ def compare(file1,file2,file3):
     plt.ylabel('Accuracy')
     plt.show()
 
+def compare_bounded_epsilon(test,control):
+    test=np.loadtxt(test)
+    control=np.loadtxt(control)
+
+    x = np.arange(0,1,float(1)/test.shape[0])[::-1]
+
+    endpoint = list(test[:,1]).index(-1)
+    plt.plot(x[:endpoint],test[:,1][:endpoint],'g--',label='Bounded Epsilon')
+    plt.plot(x[:endpoint],control[:,1][:endpoint],'b--',label='Control')
+    plt.legend(framealpha=1, frameon=True, loc='lower left')
+    plt.xlim(1, 0)
+    plt.ylim(0,1)
+    plt.xlabel('Compression Ratio')
+    plt.title('Comparison of Pruning Algorithms')
+    plt.ylabel('Accuracy')
+    plt.show()
+
 if __name__ == '__main__':
     #weight_histogram('l_obs')
     #compare('report_l_obs_continuous_retrain.txt','report_continuous_l_obs.txt','report_control.txt')
-    view_report('single_epsilon.txt')
+    #view_report('single_epsilon.txt')
+    compare_bounded_epsilon('report_bounded_epsilon.txt','report_control.txt')

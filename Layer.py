@@ -42,14 +42,11 @@ class Layer:
 
         partial_derivative_matrix = self.output*(1-self.output)*delta
 
-        gradient_W = (float(1)/self.X.shape[0])*np.matmul(partial_derivative_matrix.T,self.X).T + l2*self.W #Include l2
-        #gradient_W = np.matmul(partial_derivative_matrix.T,self.X).T + l2*self.W #Include l2
+        gradient_W = (float(1)/self.X.shape[0])*np.matmul(partial_derivative_matrix.T,self.X).T + l2*self.W
         gradient_b = (float(1)/self.X.shape[0])*np.matmul(partial_derivative_matrix.T, np.ones((partial_derivative_matrix.shape[0],1))).T
-        #gradient_b = np.matmul(partial_derivative_matrix.T, np.ones((partial_derivative_matrix.shape[0],1))).T
 
         new_delta=new_delta_scalar*np.matmul(partial_derivative_matrix,self.W.T)
 
-        #UPDATE WEIGHTS
         self.W -= learning_rate*self.unpruned_W*gradient_W
         self.b -= learning_rate*gradient_b
 
@@ -87,7 +84,6 @@ class Layer:
                 for k in range(next_layer.W.shape[0]):
                     P = np.dot(next_layer.W[k],next_layer.W[k])*j_term
                     self.propagated_losses[j][k] *= P
-                    #print(P,self.loss_matrix[j,k],self.propagated_losses[j,k])
 
         #Ensure nothing goes above the threshold
         self.propagated_losses[np.where(self.propagated_losses>self.threshold)] = float("inf")
